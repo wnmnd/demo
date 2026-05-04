@@ -9,9 +9,9 @@ import {
   BarChart,
   CartesianGrid,
   Cell,
-  Legend,
   Line,
   LineChart,
+  ReferenceLine,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -327,34 +327,78 @@ export default function AnalyzerPage() {
           </div>
 
           <div className="chart-grid">
-            <div className="chart">
+            <div className="chart chart-wide">
               <h3>Revenue by Segment</h3>
               <ResponsiveContainer width="100%" height={280}>
                 {chartMode === "bar" ? (
-                  <BarChart data={topSegments}><CartesianGrid strokeDasharray="2 4" /><XAxis dataKey="name" /><YAxis /><Tooltip /><Bar dataKey="value" radius={[8, 8, 0, 0]}>{topSegments.map((_, i) => <Cell key={i} fill={palette[i % palette.length]} />)}</Bar></BarChart>
+                  <BarChart data={topSegments} margin={{ top: 8, right: 10, left: 12, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="2 4" strokeOpacity={0.45} />
+                    <XAxis dataKey="name" tickLine={false} axisLine={false} />
+                    <YAxis tickLine={false} axisLine={false} />
+                    <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                    <Bar dataKey="value" radius={[10, 10, 0, 0]} isAnimationActive animationDuration={650}>
+                      {topSegments.map((_, i) => <Cell key={i} fill={palette[i % palette.length]} />)}
+                    </Bar>
+                  </BarChart>
                 ) : (
-                  <AreaChart data={topSegments}><defs><linearGradient id="gradA" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#2563eb" stopOpacity={0.45} /><stop offset="95%" stopColor="#2563eb" stopOpacity={0.03} /></linearGradient></defs><CartesianGrid strokeDasharray="2 4" /><XAxis dataKey="name" /><YAxis /><Tooltip /><Area type="monotone" dataKey="value" stroke="#2563eb" fill="url(#gradA)" strokeWidth={3} /></AreaChart>
+                  <AreaChart data={topSegments} margin={{ top: 8, right: 10, left: 12, bottom: 0 }}>
+                    <defs><linearGradient id="gradA" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#2563eb" stopOpacity={0.45} /><stop offset="95%" stopColor="#2563eb" stopOpacity={0.03} /></linearGradient></defs>
+                    <CartesianGrid strokeDasharray="2 4" strokeOpacity={0.45} />
+                    <XAxis dataKey="name" tickLine={false} axisLine={false} />
+                    <YAxis tickLine={false} axisLine={false} />
+                    <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                    <Area type="monotone" dataKey="value" stroke="#2563eb" fill="url(#gradA)" strokeWidth={3} isAnimationActive animationDuration={650} />
+                  </AreaChart>
                 )}
               </ResponsiveContainer>
             </div>
 
-            <div className="chart">
+            <div className="chart chart-wide">
               <h3>Volume Trend</h3>
               <ResponsiveContainer width="100%" height={280}>
-                <LineChart data={trend}><CartesianGrid strokeDasharray="2 4" /><XAxis dataKey="date" /><YAxis /><Tooltip /><Legend /><Line type="monotone" dataKey="value" stroke="#f97316" strokeWidth={3} dot={false} /></LineChart>
+                <LineChart data={trend} margin={{ top: 8, right: 10, left: 12, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="trendGlow" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#f97316" stopOpacity={0.35} />
+                      <stop offset="100%" stopColor="#f97316" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="2 4" strokeOpacity={0.45} />
+                  <XAxis dataKey="date" tickLine={false} axisLine={false} />
+                  <YAxis tickLine={false} axisLine={false} />
+                  <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                  <ReferenceLine y={0} stroke="#cbd5e1" />
+                  <Area type="monotone" dataKey="value" stroke="none" fill="url(#trendGlow)" />
+                  <Line type="monotone" dataKey="value" stroke="#f97316" strokeWidth={3} dot={{ r: 3, strokeWidth: 0 }} activeDot={{ r: 6 }} isAnimationActive animationDuration={700} />
+                </LineChart>
               </ResponsiveContainer>
             </div>
 
             <div className="chart">
               <h3>Distribution</h3>
               <ResponsiveContainer width="100%" height={280}>
-                <PieChart><Pie data={shareData} dataKey="value" nameKey="name" outerRadius={100} innerRadius={52}>{shareData.map((_, i) => <Cell key={i} fill={palette[i % palette.length]} />)}</Pie><Tooltip /></PieChart>
+                <PieChart>
+                  <Pie data={shareData} dataKey="value" nameKey="name" outerRadius={100} innerRadius={62} paddingAngle={2} isAnimationActive animationDuration={700}>
+                    {shareData.map((_, i) => <Cell key={i} fill={palette[i % palette.length]} />)}
+                  </Pie>
+                  <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                </PieChart>
               </ResponsiveContainer>
             </div>
 
             <div className="chart">
-              <h3>Top Segments</h3>
-              <ol>{topSegments.map((d) => <li key={d.name}>{d.name}: {d.value.toLocaleString()}</li>)}</ol>
+              <h3>Top Segments Leaderboard</h3>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={[...topSegments].reverse()} layout="vertical" margin={{ top: 8, right: 12, left: 20, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="2 4" strokeOpacity={0.35} horizontal={false} />
+                  <XAxis type="number" hide />
+                  <YAxis type="category" dataKey="name" width={92} tickLine={false} axisLine={false} />
+                  <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                  <Bar dataKey="value" radius={[0, 8, 8, 0]} isAnimationActive animationDuration={700}>
+                    {[...topSegments].reverse().map((_, i) => <Cell key={i} fill={palette[(i + 1) % palette.length]} />)}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           </div>
         </section>
