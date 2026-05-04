@@ -17,7 +17,8 @@ import {
   ResponsiveContainer,
   Tooltip,
   XAxis,
-  YAxis
+  YAxis,
+  LabelList
 } from "recharts";
 import { templatesByIndustry, type IndustryKey, type TemplateDef } from "@/lib/templates";
 import { supabase } from "@/lib/supabase";
@@ -29,6 +30,10 @@ type TrendPoint = { date: string; value: number };
 
 const industries = Object.keys(templatesByIndustry) as IndustryKey[];
 const palette = ["#2563eb", "#0891b2", "#f97316", "#84cc16", "#e11d48", "#7c3aed", "#ea580c"];
+
+function fmt(value: number) {
+  return value.toLocaleString();
+}
 
 function toCsv(rows: Row[]) {
   return Papa.unparse(rows);
@@ -166,6 +171,7 @@ export default function AnalyzerPage() {
   const segments = useMemo(() => ["All", ...new Set(segmentRevenue.map((s) => s.name))], [segmentRevenue]);
   const topSegments = segmentRevenue.slice(0, topN);
   const shareData = segmentRevenue.slice(0, 6);
+  const totalShare = shareData.reduce((sum, d) => sum + d.value, 0);
 
   async function callOpenRouter(payload: { mode: "insights" | "chat"; dataSummary: string; question?: string; history?: ChatMsg[] }) {
     if (!openRouterKey.trim()) {
@@ -335,9 +341,10 @@ export default function AnalyzerPage() {
                     <CartesianGrid strokeDasharray="2 4" strokeOpacity={0.45} />
                     <XAxis dataKey="name" tickLine={false} axisLine={false} />
                     <YAxis tickLine={false} axisLine={false} />
-                    <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                    <Tooltip formatter={(v: number) => fmt(v)} cursor={{ fill: "rgba(37,99,235,0.08)" }} contentStyle={{ borderRadius: 10, border: "1px solid #dbe5f2" }} />
                     <Bar dataKey="value" radius={[10, 10, 0, 0]} isAnimationActive animationDuration={650}>
                       {topSegments.map((_, i) => <Cell key={i} fill={palette[i % palette.length]} />)}
+                      <LabelList dataKey="value" position="top" formatter={(v: number) => fmt(v)} fill="#334155" fontSize={11} />
                     </Bar>
                   </BarChart>
                 ) : (
@@ -346,7 +353,7 @@ export default function AnalyzerPage() {
                     <CartesianGrid strokeDasharray="2 4" strokeOpacity={0.45} />
                     <XAxis dataKey="name" tickLine={false} axisLine={false} />
                     <YAxis tickLine={false} axisLine={false} />
-                    <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                    <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 10, border: "1px solid #dbe5f2" }} />
                     <Area type="monotone" dataKey="value" stroke="#2563eb" fill="url(#gradA)" strokeWidth={3} isAnimationActive animationDuration={650} />
                   </AreaChart>
                 )}
@@ -366,7 +373,7 @@ export default function AnalyzerPage() {
                   <CartesianGrid strokeDasharray="2 4" strokeOpacity={0.45} />
                   <XAxis dataKey="date" tickLine={false} axisLine={false} />
                   <YAxis tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                  <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 10, border: "1px solid #dbe5f2" }} />
                   <ReferenceLine y={0} stroke="#cbd5e1" />
                   <Area type="monotone" dataKey="value" stroke="none" fill="url(#trendGlow)" />
                   <Line type="monotone" dataKey="value" stroke="#f97316" strokeWidth={3} dot={{ r: 3, strokeWidth: 0 }} activeDot={{ r: 6 }} isAnimationActive animationDuration={700} />
@@ -374,28 +381,37 @@ export default function AnalyzerPage() {
               </ResponsiveContainer>
             </div>
 
-            <div className="chart">
+            <div className="chart chart-wide">
               <h3>Distribution</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie data={shareData} dataKey="value" nameKey="name" outerRadius={100} innerRadius={62} paddingAngle={2} isAnimationActive animationDuration={700}>
                     {shareData.map((_, i) => <Cell key={i} fill={palette[i % palette.length]} />)}
                   </Pie>
-                  <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                  <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 10, border: "1px solid #dbe5f2" }} />
                 </PieChart>
               </ResponsiveContainer>
+              <div className="mini-legend">
+                {shareData.map((item, i) => (
+                  <span key={item.name}>
+                    <i style={{ background: palette[i % palette.length] }} />
+                    {item.name} ({((item.value / Math.max(totalShare, 1)) * 100).toFixed(0)}%)
+                  </span>
+                ))}
+              </div>
             </div>
 
-            <div className="chart">
+            <div className="chart chart-wide">
               <h3>Top Segments Leaderboard</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={[...topSegments].reverse()} layout="vertical" margin={{ top: 8, right: 12, left: 20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="2 4" strokeOpacity={0.35} horizontal={false} />
                   <XAxis type="number" hide />
                   <YAxis type="category" dataKey="name" width={92} tickLine={false} axisLine={false} />
-                  <Tooltip formatter={(v: number) => v.toLocaleString()} />
+                  <Tooltip formatter={(v: number) => fmt(v)} contentStyle={{ borderRadius: 10, border: "1px solid #dbe5f2" }} />
                   <Bar dataKey="value" radius={[0, 8, 8, 0]} isAnimationActive animationDuration={700}>
                     {[...topSegments].reverse().map((_, i) => <Cell key={i} fill={palette[(i + 1) % palette.length]} />)}
+                    <LabelList dataKey="value" position="right" formatter={(v: number) => fmt(v)} fill="#334155" fontSize={11} />
                   </Bar>
                 </BarChart>
               </ResponsiveContainer>
