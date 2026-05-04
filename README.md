@@ -13,11 +13,11 @@ A deployable Next.js demo with full user journey:
    ```bash
    npm install
    ```
-3. Copy env file:
+3. Copy env file (optional for Supabase only):
    ```bash
    cp .env.example .env.local
    ```
-4. Fill `.env.local` with your keys.
+4. Fill `.env.local` only if you want Supabase storage.
 5. Run:
    ```bash
    npm run dev
@@ -36,18 +36,24 @@ create table if not exists uploaded_records (
 ```
 
 ## OpenRouter Model
-The API route uses a free model:
+The app uses a free OpenRouter model directly from browser input:
 - `meta-llama/llama-3.3-8b-instruct:free`
 
 You can change model in:
-- `src/app/api/ai/route.ts`
+- `src/app/analyzer/page.tsx`
 
-## Deploy
-- Push to GitHub
-- Import repo into Vercel
-- Add env vars in Vercel Project Settings
-- Deploy
+## Deploy to GitHub Pages (`https://wnmnd.github.io/demo`)
+This repo is configured for static export and GitHub Pages path `/demo`.
+
+1. Push to `main`.
+2. In GitHub repo settings:
+   - Go to `Settings` -> `Pages`
+   - Set `Build and deployment` source to `GitHub Actions`
+3. Wait for workflow `Deploy Next.js to GitHub Pages` to finish.
+4. Your site will be live at:
+   - `https://wnmnd.github.io/demo`
 
 ## Security
 Do not commit `.env.local`.
-If your key was exposed publicly, rotate it immediately in OpenRouter.
+Do not hardcode OpenRouter keys in source.
+If a key was exposed publicly, rotate it immediately in OpenRouter.

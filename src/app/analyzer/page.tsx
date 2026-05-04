@@ -48,6 +48,7 @@ export default function AnalyzerPage() {
   const [chat, setChat] = useState<ChatMsg[]>([]);
   const [question, setQuestion] = useState("");
   const [loadingAI, setLoadingAI] = useState(false);
+  const [openRouterKey, setOpenRouterKey] = useState("");
 
   const stats = useMemo(() => {
     if (!rows.length) return null;
@@ -88,6 +89,51 @@ export default function AnalyzerPage() {
   }, [rows]);
 
   const pieData = useMemo(() => departmentRevenue.slice(0, 6), [departmentRevenue]);
+
+  async function callOpenRouter(payload: {
+    mode: "insights" | "chat";
+    dataSummary: string;
+    question?: string;
+    history?: ChatMsg[];
+  }) {
+    if (!openRouterKey.trim()) {
+      throw new Error("Please paste your OpenRouter key first.");
+    }
+
+    const system =
+      payload.mode === "insights"
+        ? "You are a business analytics assistant. Return concise sections: Automatic Insights, Recommendations, Warnings. Ground every claim in provided summary."
+        : "You are a context-aware analytics copilot. Answer with concrete data-backed reasoning and include assumptions when simulating what-if scenarios.";
+
+    const userPrompt =
+      payload.mode === "insights"
+        ? `Generate portfolio-demo quality insights from:\n${payload.dataSummary}`
+        : `Dataset summary:\n${payload.dataSummary}\n\nQuestion: ${payload.question ?? ""}`;
+
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${openRouterKey.trim()}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        model: "meta-llama/llama-3.3-8b-instruct:free",
+        messages: [
+          { role: "system", content: system },
+          ...(payload.history ?? []),
+          { role: "user", content: userPrompt }
+        ]
+      })
+    });
+
+    if (!response.ok) {
+      const err = await response.text();
+      throw new Error(`OpenRouter error: ${err}`);
+    }
+
+    const json = await response.json();
+    return json?.choices?.[0]?.message?.content ?? "No AI response.";
+  }
 
   async function handleUpload(file: File) {
     setError(null);
@@ -142,15 +188,11 @@ export default function AnalyzerPage() {
 
     setLoadingAI(true);
     try {
-      const res = await fetch("/api/ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode: "insights", dataSummary: summary })
-      });
-      const json = await res.json();
-      setInsights(json.text || "Could not generate insights.");
-    } catch {
-      setInsights("Failed to generate insights. Check API key and network.");
+      const text = await callOpenRouter({ mode: "insights", dataSummary: summary });
+      setInsights(text || "Could not generate insights.");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to generate insights.";
+      setInsights(message);
     } finally {
       setLoadingAI(false);
     }
@@ -164,18 +206,28 @@ export default function AnalyzerPage() {
 
     const summary = `Industry: ${industry}\nTemplate: ${template?.name}\nRows: ${rows.length}\nTop segments: ${JSON.stringify(departmentRevenue.slice(0, 5))}`;
 
-    const res = await fetch("/api/ai", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ mode: "chat", dataSummary: summary, question, history: next })
-    });
-    const json = await res.json();
-    setChat([...next, { role: "assistant", content: json.text || "No response" }]);
+    try {
+      const text = await callOpenRouter({ mode: "chat", dataSummary: summary, question, history: next });
+      setChat([...next, { role: "assistant", content: text || "No response" }]);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "AI request failed.";
+      setChat([...next, { role: "assistant", content: message }]);
+    }
   }
 
   return (
     <main className="shell">
       <h1>Business Data Analyzer</h1>
+      <section className="panel">
+        <h2>OpenRouter Key (for AI features)</h2>
+        <input
+          type="password"
+          placeholder="sk-or-v1-..."
+          value={openRouterKey}
+          onChange={(e) => setOpenRouterKey(e.target.value)}
+        />
+        <p className="hint">This key stays in your browser session and is not stored in this repo.</p>
+      </section>
 
       <section className="panel">
         <h2>1. Select Industry</h2>

@@ -18,6 +18,8 @@ body { margin: 0; font-family: "Avenir Next", "Segoe UI", sans-serif; color: var
 .grid.three { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 .grid.two { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
 .error { color: var(--danger); font-weight: 600; }
+.hint { color: #475569; font-size: 12px; }
+input[type="password"], input[type="file"] { margin-top: 6px; }
 .stats { display: flex; gap: 14px; flex-wrap: wrap; }
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; margin-top: 10px; }
