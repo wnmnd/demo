@@ -70,7 +70,7 @@ input[type="file"], input[type="password"], .chatinput input, select {
 .chip-grid, .template-grid, .chart-grid, .action-row { display: grid; gap: 8px; }
 .chip-grid { grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); }
 .template-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-.chart-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .action-row { grid-template-columns: repeat(auto-fit, minmax(180px, max-content)); }
 
 .chip, .template-card, .btn {
@@ -114,7 +114,7 @@ th { background: #f8fbff; position: sticky; top: 0; }
 }
 .chart:hover { transform: translateY(-1px); box-shadow: 0 14px 22px rgba(15, 23, 42, 0.08); }
 .chart h3 { margin-bottom: 10px; font-size: .98rem; letter-spacing: 0.01em; }
-.chart-wide { grid-column: span 2; }
+.chart-wide { grid-column: span 1; }
 .mini-legend {
   display: flex;
   flex-wrap: wrap;
@@ -146,8 +146,8 @@ th { background: #f8fbff; position: sticky; top: 0; }
   .hero-v2 { grid-template-columns: 1fr; }
   .control-row { grid-template-columns: 1fr; }
   .split { grid-template-columns: 1fr; }
-  .chart-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .chart-wide { grid-column: span 2; }
+  .chart-grid { grid-template-columns: 1fr; }
+  .chart-wide { grid-column: span 1; }
 }
 
 @media (max-width: 640px) {
