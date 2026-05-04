@@ -1,0 +1,6 @@
+Date,Department,Revenue,Patient Count,Procedure Type
+2026-02-01,Dermatology,4200,18,Laser
+2026-02-01,General,3150,34,Consultation
+2026-02-02,Pediatrics,2800,21,Vaccination
+2026-02-02,ENT,2600,16,Checkup
+2026-02-03,General,3350,36,Consultation

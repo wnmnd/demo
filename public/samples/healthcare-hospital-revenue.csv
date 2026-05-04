@@ -1,0 +1,6 @@
+Date,Department,Revenue,Patient Count,Procedure Type
+2026-01-01,Cardiology,18500,22,Angioplasty
+2026-01-02,Emergency,27500,43,Trauma
+2026-01-03,Pediatrics,9200,28,Consultation
+2026-01-04,Orthopedics,15400,19,Arthroscopy
+2026-01-05,Neurology,16800,15,EEG

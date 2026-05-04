@@ -6,6 +6,8 @@ A deployable Next.js demo with full user journey:
 - Auto visualizations
 - AI-generated insights + chatbot via OpenRouter
 - Export/share actions
+- Modern interactive dashboard UI
+- Downloadable sample CSVs for every template under `public/samples/`
 
 ## Setup
 1. Install Node.js 20+.
@@ -57,3 +59,7 @@ This repo is configured for static export and GitHub Pages path `/demo`.
 Do not commit `.env.local`.
 Do not hardcode OpenRouter keys in source.
 If a key was exposed publicly, rotate it immediately in OpenRouter.
+
+## Demo Mode
+- If no OpenRouter key is entered, the app runs built-in demo insights/chat responses so clients can still test the full flow.
+- For production AI with hidden keys, deploy on a backend-capable platform (for example Vercel) and proxy AI calls server-side.
